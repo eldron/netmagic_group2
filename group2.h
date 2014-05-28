@@ -75,15 +75,18 @@ typedef struct _FIB {
 void FIB_init();
 uint8_t FIB_insert(FIBItem* item);
 FIBItem* FIB_find(Mac mac, int type);
+void FIB_delete(FIBItem * item);
+
 ///////////////////////////////////////////////////////////////////////////////
 // Software
 void eraseThread(void* p);
 
 typedef struct _PacketDigest {
-	uint8_t dmac[6];
-	uint8_t smac[6];
+	Mac dmac;
+	Mac smac;
 	uint8_t sport;// bitmap
 } PacketDigest;
+
 void onPacketArrival(PacketDigest* d);
 ///////////////////////////////////////////////////////////////////////////////
 // Hardware communication interfaces

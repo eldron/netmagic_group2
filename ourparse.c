@@ -29,7 +29,19 @@ void ourparse(){
 			pause_flag = 1;
 			// our logic
 			// 接收硬件查表没命中的包，修改控制器和netmagic中的转发表，构造type为8的数据包，发送给netmagic
+			PacketDigest d;
+			uint8_t * ptr = (uint8_t *) (msg.content + 34 + sizeof(nmac_hdr) + 4);
+			memcpy(&d.dmac, ptr, 6);
+			memcpy(&d.smac, ptr + 6, 6);
+			ptr = (uint8_t *) (msg.content + 41);
+			memcpy(&d.sport, ptr, 1);
+			onPacketArrival(&d);
 
+			uint16_t outport = 0;
+			// set outport here, network endian, set to all, except cpu port and d->sport
+			
+			// send packet to netmagic
+			send_packet(&msg, outport);
 			break;
 		default:
 			break;

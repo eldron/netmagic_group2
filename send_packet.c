@@ -2,6 +2,7 @@
 
 #include "nmac.h"
 
+// assume outport is already in network endian
 void send_packet(Message * msg, uint16_t outport/* bitmap */){
 	// set namc header
 	nmac_head.count = 1;
