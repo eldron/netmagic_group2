@@ -90,9 +90,9 @@ typedef struct _PacketDigest {
 void onPacketArrival(PacketDigest* d);
 ///////////////////////////////////////////////////////////////////////////////
 // Hardware communication interfaces
-void HWFIB_insert(FIBItem* item);
-void HWFIB_update(FIBItem* item);
-void HWFIB_remove(FIBItem* item);
+//void HWFIB_insert(FIBItem* item);
+//void HWFIB_update(FIBItem* item);
+//void HWFIB_remove(FIBItem* item);
 
 // write an item into netmagic
 // the id in FIBItem represents the hardware address in netmagic

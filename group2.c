@@ -259,10 +259,10 @@ void onPacketArrival(PacketDigest * d){
 //		HWFIB_insert(&x);
 //	}
 //}
-///////////////////////////////////////////////////////////////////////////////
-void HWFIB_insert(FIBItem* item) {
-}
-void HWFIB_update(FIBItem* item) {
-}
-void HWFIB_remove(FIBItem* item) {
-}
+/////////////////////////////////////////////////////////////////////////////////
+//void HWFIB_insert(FIBItem* item) {
+//}
+//void HWFIB_update(FIBItem* item) {
+//}
+//void HWFIB_remove(FIBItem* item) {
+//}
