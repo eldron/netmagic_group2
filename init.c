@@ -9,21 +9,21 @@
 int contr_init() {
 	eth_addr = (struct libnet_ether_addr *) malloc(
 			sizeof(struct libnet_ether_addr)); //存放MAC地址
-	char *IP_string; //存放点分十进制IP字符串
-	IP_string = (char *) malloc(16 * sizeof(char));
-	int str_len1, str_len2, str_len3;
+	//char *IP_string; //存放点分十进制IP字符串
+	//IP_string = (char *) malloc(16 * sizeof(char));
+	//int str_len1, str_len2, str_len3;
 	char errbuf[LIBNET_ERRBUF_SIZE];
 	char mac_tmp[18];
 	//payload = (u_char*) malloc(1480 * sizeof(u_char)); //为NMAC报文数据部分分配内存
 	//bpf_filter_string = (char *) malloc(100 * sizeof(char)); //为BPF过滤字符串分配内存100个字节
 
-	bpf_filter_string[0] = 'i'; //开始部分配置bpf规则
-	bpf_filter_string[1] = 'p'; //完整规则为目的IP和IP类型
-	bpf_filter_string[2] = ' '; //即ip dst "控制器ip" and ip proto 253
-	bpf_filter_string[3] = 'd';
-	bpf_filter_string[4] = 's';
-	bpf_filter_string[5] = 't';
-	bpf_filter_string[6] = ' ';
+	//bpf_filter_string[0] = 'i'; //开始部分配置bpf规则
+	//bpf_filter_string[1] = 'p'; //完整规则为目的IP和IP类型
+	//bpf_filter_string[2] = ' '; //即ip dst "控制器ip" and ip proto 253
+	//bpf_filter_string[3] = 'd';
+	//bpf_filter_string[4] = 's';
+	//bpf_filter_string[5] = 't';
+	//bpf_filter_string[6] = ' ';
 
 	adapter = pcap_lookupdev(errbuf); //获得网络接口名称
 	if (adapter == NULL) {
@@ -36,9 +36,9 @@ int contr_init() {
 
 		ctrl_net_ip = libnet_get_ipaddr4(l); //获取本机32位网络字节序IP地址
 		//将32位网络字节序地址转换为点分十进制地址
-		IP_string = libnet_addr2name4(ctrl_net_ip, LIBNET_DONT_RESOLVE);
-		str_len1 = strlen(IP_string);
-		memcpy(bpf_filter_string+7, IP_string, str_len1);
+		//IP_string = libnet_addr2name4(ctrl_net_ip, LIBNET_DONT_RESOLVE);
+		//str_len1 = strlen(IP_string);
+		//memcpy(bpf_filter_string+7, IP_string, str_len1);
 		//将本机IP地址复制到BPF过滤字符串中
 
 		eth_addr = libnet_get_hwaddr(l); //获取本机的MAC地址
@@ -48,11 +48,12 @@ int contr_init() {
 		}
 
 		char * string = " and ip proto 253"; //NMAC的IP类型为253
-		memcpy(bpf_filter_string+7+str_len1, string, strlen(string));
+		//memcpy(bpf_filter_string+7+str_len1, string, strlen(string));
 		//完成BPF字符串赋值
 
-		pcap_compile(pcap_handle, &bpf_filter_nmac, bpf_filter_string, 0,
+		//pcap_compile(pcap_handle, &bpf_filter_nmac, bpf_filter_string, 0,
 				net_ip); //编译过滤规则
+		pcap_compile(pcap_handle, &bpf_filter_nmac, "ip proto 253", 0, net_ip);
 		pcap_setfilter(pcap_handle, &bpf_filter_nmac); //设置过滤规则
 	}
 

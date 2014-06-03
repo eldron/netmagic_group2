@@ -135,7 +135,7 @@ pcap_t* pcap_handle; //Pcap¾ä±ú
 struct bpf_program bpf_filter_nmac; //BPF¹ıÂË¹æÔò
 
 // edited by lijie
-char bpf_filter_string[100]; //BPF¹ıÂË×Ö·û´®
+//char bpf_filter_string[100]; //BPF¹ıÂË×Ö·û´®
 
 char pcap_errbuf[PCAP_ERRBUF_SIZE];
 libnet_t * l; //Libnet¾ä±ú
