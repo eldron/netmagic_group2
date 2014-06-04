@@ -1,11 +1,22 @@
 /******************************************************************************************
 group2's console, use this to replace demo_test() in test.c
 
-采用类似shell命令行的方式：？                     	:显示支持的所有命令set poll_time [seconds]	: 设置老化轮询时间间隔set expire_time [seconds]	:设置老化时间init forward_table  		: 初始化转发表（全写0）add [表项内容]      		: 写指定转发表项（同时写硬件)（加锁）dispaly all        		: 遍历转发表,显示遍历结果display [damc/dport]		: 根据条件（dmac/dport）查找转发表,显示查询表项
+采用类似shell命令行的方式：？                     	:显示支持的所有命令set poll_time [seconds]	: 设置老化轮询时间间隔set expire_time [seconds]	:设置老化时间init forward_table  		: 初始化转发表（全写0）add [表项内容]      		: 写指定转发表项（同时写硬件)（加锁）dispaly all        		: 遍历转发表,显示遍历结果display [dmac/dport]		: 根据条件（dmac/dport）查找转发表,显示查询表项
 exit
 ******************************************************************************************/
 
 #include "nmac.h"
+
+#define SET_POLL_TIME_COMMAND 200
+#define SET_EXPIRE_TIME_COMMAND 201
+#define INIT_FORWARD_TABLE_COMMAND 202
+#define ADD_TABLE_COMMAND 203
+#define DISPLAY_ALL_COMMAND 204
+#define DISPLAY_DMAC_COMMAND 205
+#define DISPLAY_DPORT_COMMAND 206
+#define EXIT_COMMAND 207
+#define DISPLAY_HELP_COMMAND 208
+#define COMMAND_NOT_FOUND 209
 
 typedef struct {
 	int count;// the number of tokens in a command
@@ -14,7 +25,7 @@ typedef struct {
 } Tokens;
 
 void get_tokens(char * command, Tokens * tokens){
-	memset(tokens, 0, sizeof(Tokens));
+	memset(tokens, '\0', sizeof(Tokens));
 	tokens->count = 0;
 	int i = 0;
 	while(command[i] != '\0' && command[i] != '\n'){
@@ -95,15 +106,91 @@ void do_display_dport(Tokens * tokens){
 
 // execute "exit"
 void do_exit(){
-
+	halt_flag = 1;
 }
 
+void do_command_not_found(Tokens * tokens){
+	printf("Command not found!\n");
+	do_display_help();
+}
+
+// get command type
+int get_command_type(Tokens * tokens){
+	if(tokens->count == 1){
+		if(strcmp(tokens->token[0], "?") == 0){
+			return DISPLAY_HELP_COMMAND;
+		} else if(strcmp(tokens->token[0], "exit") == 0){
+			return EXIT_COMMAND;
+		} else {
+			return COMMAND_NOT_FOUND;
+		}
+	} else if(tokens->count == 2){
+		if(strcmp(tokens->token[0], "init") == 0 && strcmp(tokens->token[1], "forward_table") == 0){
+			return INIT_FORWARD_TABLE_COMMAND;
+		} else if(strcmp(tokens->token[0], "display") == 0 && strcmp(tokens->token[1], "all") == 0){
+			return DISPLAY_ALL_COMMAND;
+		} else if(strcmp(tokens->token[0], "display") == 0){
+			// check if contains '.'
+			int i = 0;
+			int flag = 0;
+			for(i = 0;i < tokens->len[1];i++){
+				if(tokens->token[1][i] == '.'){
+					flag = 1;
+					break;
+				}
+			}
+
+			if(flag){
+				return DISPLAY_DMAC_COMMAND;
+			} else {
+				return DISPLAY_DPORT_COMMAND;
+			}
+		} else {
+			return COMMAND_NOT_FOUND;
+		}
+	} else if(tokens->count == 3){
+		if(strcmp(tokens->token[0], "set") == 0 && strcmp(tokens->token[1], "poll_time") == 0){
+			return SET_POLL_TIME_COMMAND;
+		} else if(strcmp(tokens->token[0], "set") == 0 && strcmp(tokens->token[1], "expire_time") == 0){
+			return SET_RXPIRE_TIME_COMMAND;
+		} else if(strcmp(tokens->token[0], "add") == 0){
+			return ADD_TABLE_COMMAND;
+		} else {
+			return COMMAND_NOT_FOUND;
+		}
+	} else {
+		return COMMAND_NOT_FOUND;
+	}
+}
+
+// execute a command
 void do_command(char * command, Tokens * tokens){
 	// parse a command and execute it
 	// add an 'exit' command, set halt_flag = 1
-
-	// default action
-	printf("Command not found!\n");
+	get_tokens(command, tokens);
+	int type = get_command_type(tokens);
+	switch(type){
+	case SET_POLL_TIME_COMMAND:
+		do_set_poll_time(tokens);
+	case SET_EXPIRE_TIME_COMMAND:
+		do_set_expire_time(tokens);
+	case INIT_FORWARD_TABLE_COMMAND:
+		do_init_forward_table();
+	case ADD_TABLE_COMMAND:
+		do_add_table(tokens);
+	case DISPLAY_ALL_COMMAND:
+		do_display_all();
+	case DISPLAY_DMAC_COMMAND:
+		do_display_dmac(tokens);
+	case DISPLAY_DPORT_COMMAND:
+		do_display_dport(tokens);
+	case EXIT_COMMAND:
+		do_exit();
+	case DISPLAY_HELP_COMMAND:
+		do_display_help();
+	default:
+		do_command_not_found(tokens);
+	}
 }
 
 void console(){
@@ -122,7 +209,7 @@ void console(){
 		if(fgets(command, 100, stdin)){
 			// execute each command
 			do_command(command, &tokens);
-			printf("$:");
+			printf("\n$:");
 		} else {
 			halt_flag = 1;
 			break;
