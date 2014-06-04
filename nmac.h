@@ -61,8 +61,8 @@ struct nmac_dev {
 	int netmagic_id; //用此ID在初始化函数中标识设备
 	char netmagic_ip[16];
 	u_char netmagic_mac[6];
-	int Addr_flag[100]; //表项有效位标识符，假定可以存99个表项, Addr_flag[0]用来指示规则表是否为空
-	Link head; //规则流表头指针
+	//int Addr_flag[100]; //表项有效位标识符，假定可以存99个表项, Addr_flag[0]用来指示规则表是否为空
+	//Link head; //规则流表头指针
 };
 
 //NMAC头部数据结构，按1字节长度对齐
@@ -154,30 +154,31 @@ int packet_size; //发送的数据包大小
 int contr_init(); //初始化函数，配置参数
 void nm_init(); //初始化NetMagic信息
 void packet_capture(); //抓包函数
-void parsing(); //解析&分发报文函数
-void demo_test(); //演示UI
-int hextodec(char x); //将十六进制转化为十进制处理
+//void parsing(); //解析&分发报文函数
+//void demo_test(); //演示UI
+void console();
+//int hextodec(char x); //将十六进制转化为十进制处理
 
 //4个基本接口函数
 int nmac_init(int netmagic_id); //初始化与netmagic的连接
 void nmac_write_data(u_int32_t addr, int num, u_int32_t* data); //写数据
 
 //规则表项操作函数
-int Add_flow_entry(int netmagic_id, FlowEntry entry); //新增流表项
-int Delete_flow_entry(int netmagic_id, u_int8_t entry_id); //删除流表项
+//int Add_flow_entry(int netmagic_id, FlowEntry entry); //新增流表项
+//int Delete_flow_entry(int netmagic_id, u_int8_t entry_id); //删除流表项
 
 //链表操作函数
-Link Creat_List(); //创造空单链表
-void Destroy_List(Link H); //销毁单链表
-void Clear_List(Link H); //清空单链表，置为空表
-int List_Empty(Link H); //判断链表是否为空表
-int Length_List(Link H); //求单链表长度
-Link Locate_List_Value(Link H, u_int8_t id); //按表项id查找
-void Delete_Elem(Link H, u_int8_t id); //按id删除表项
-void Add_Elem(
-		Link H, //新增流表项
-		u_int8_t id, u_int32_t addr, u_int32_t dst_ip, u_int16_t trans_port,
-		u_int8_t forward_port);
+//Link Creat_List(); //创造空单链表
+//void Destroy_List(Link H); //销毁单链表
+//void Clear_List(Link H); //清空单链表，置为空表
+//int List_Empty(Link H); //判断链表是否为空表
+//int Length_List(Link H); //求单链表长度
+//Link Locate_List_Value(Link H, u_int8_t id); //按表项id查找
+//void Delete_Elem(Link H, u_int8_t id); //按id删除表项
+//void Add_Elem(
+//		Link H, //新增流表项
+//		u_int8_t id, u_int32_t addr, u_int32_t dst_ip, u_int16_t trans_port,
+//		u_int8_t forward_port);
 
 
 // added by Li Jie on 2014.5.27, set the value in demo_test.c, used by function hw_write_item in group2.h
@@ -188,4 +189,4 @@ int selected_nid = 0;
 MQueue mqueue;
 
 int ERASE_THRESHOLD_S = 30;
-int REASE_SLEEP_INTERVAL_MS = 300;
+int RRASE_SLEEP_INTERVAL_MS = 300;

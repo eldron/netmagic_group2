@@ -28,8 +28,8 @@ int init_mqueue(MQueue * queue){
 	queue->count = 0;
 	queue->head = queue->tail = NULL;
 	// initialize mutex and cond here
-	pthread_mutex_init(&queue->mutex);
-	pthread_cond_init(&queue->cond);
+	pthread_mutex_init(&queue->mutex, NULL);
+	pthread_cond_init(&queue->cond, NULL);
 	return 0;
 }
 
@@ -49,7 +49,7 @@ void delete_mqueue(MQueue * queue){
 }
 
 int is_empty(MQueue * queue){
-	return count == 0;
+	return queue->count == 0;
 }
 
 // return 0 if successful, return -1 otherwise
@@ -78,18 +78,17 @@ int enqueue(MQueue * queue, Message * msg){
 // 值传递，而不是指针操作，效率略低，但安全
 int dequeue(MQueue * queue, Message * msg){
 	pthread_mutex_lock(&(queue->mutex));
-	while(count == 0){
+	while(queue->count == 0){
 		pthread_cond_wait(&(queue->cond), &(queue->mutex));
 	}
 
 	Node * tmp = queue->head;
 	queue->head = queue->head->next;
 	*msg = tmp->msg;
-	count--;
+	queue->count--;
 	free(tmp);
 
 	pthread_mutex_unlock(&(queue->mutex));
 	return 0;
 }
-
 #endif

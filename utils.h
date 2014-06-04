@@ -9,15 +9,15 @@ void binary_print_byte(uint8_t value){
 	int i = 7;
 	for(i = 7;i >= 0;i--){
 		if(value & (tmp << i)){
-			print("1");
+			printf("1");
 		} else {
-			print("0");
+			printf("0");
 		}
 	}
 }
 
 char dec_to_hex(uint8_t value){
-	if(0 <= value && value <= 9){
+	if(value <= 9){
 		return '0' + value;
 	} else {
 		return 'A' + value - 10;

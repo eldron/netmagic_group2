@@ -1,7 +1,7 @@
 #include "group2.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-static FIB g_fib;
+//static FIB g_fib;
 void FIB_init() {
 	memset(&g_fib, 0, sizeof(g_fib));
 	int i = 0;

@@ -1,5 +1,6 @@
 #pragma once
 #include "nmac.h"
+#include "utils.h"
 #include "FFT.h"
 
 #define FIBSIZE 8
@@ -64,6 +65,8 @@ typedef struct _FIBItem {
 	uint8_t valid;// 1 valid, 0 not valid
 	uint8_t item_type;
 } FIBItem;
+
+FIB g_fib;
 
 // print an item, if valid
 void print_item(FIBItem * item){
@@ -144,7 +147,7 @@ int hw_write_item(FIBItem * item){
 	fft.valid = item->valid;// set valid
 	fft.base_action = 1;// set base_action
 	// no need to set postprocessor_bitmap
-	fft.outport = item->port;// set output port
+	fft.output = item->port;// set output port
 	// no need to set user_define
 
 	//取得要操作的netmagic的mac地址，ip地址
@@ -152,7 +155,7 @@ int hw_write_item(FIBItem * item){
 			LIBNET_DONT_RESOLVE);
 	memcpy(&netmagic_mac, (&NM[selected_nid])->netmagic_mac, 6);
 
-	nmac_write_data(ITEM_BASE_ADDR + 16 * id, sizeof(FFT) / 4, (uint32_t *) &fft); //发送nmac写报文
+	nmac_write_data(ITEM_BASE_ADDR + 16 * item->id, sizeof(FFT) / 4, (uint32_t *) &fft); //发送nmac写报文
 	if (timeout_flag) {
 		timeout_flag = 0;
 		return 0;
