@@ -3,8 +3,8 @@
 #include "FFT.h"
 
 #define FIBSIZE 8
-#define ERASE_SLEEP_INTERVAL_MS 300
-#define ERASE_THRESHOLD_S 30
+//#define ERASE_SLEEP_INTERVAL_MS 300
+//#define ERASE_THRESHOLD_S 30
 
 #define ITEM_1 100
 #define ITEM_2 101
@@ -55,8 +55,6 @@ enum Type {
 	};
 
 typedef struct _FIBItem {
-#define PORT_ALL -1
-#define PORT_CPU -2
 	uint8_t id;
 	uint8_t port;// bitmap
 	Mac smac;

@@ -162,7 +162,7 @@ void eraseThread(void * p){
 	time_t ts;
 	while(!halt_flag){
 		ts = time(0);
-		for(i = 0;i < FIBSIZEL; ++i){
+		for(i = 0;i < FIBSIZE; ++i){
 			if(g_fib.at[i].valid && g_fib.at[i].type == DMAC){
 				if(ts > g_fib.at[i].ts + ERASE_THRESHOLD_S){
 					FIB_delete(&g_fib.at[i]);

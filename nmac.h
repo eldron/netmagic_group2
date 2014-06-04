@@ -16,6 +16,8 @@
 #include <sys/msg.h>
 
 #include "mqueue.h"
+#define PORT_ALL 0x1100
+#define PORT_CPU 0x0800
 
 #define NMAC_PROTO 253 		//定义NMAC协议号253
 #define BUFFER 366 			//读数据缓存大小366*4字节
@@ -32,21 +34,21 @@ int msg_id; //消息队列的ID
 //	char mtext[1500]; /*消息内容，不超过1024字节*/
 //};
 
-//规则表项
-typedef struct flow_entry {
-	u_int8_t id; //表项id
-	u_int32_t addr; //表项起始地址
-	u_int32_t dst_ip; //目的ip
-	u_int16_t trans_port; //UDP端口号
-	u_int8_t forward_port; //转发端口号
-} FlowEntry;
+////规则表项
+//typedef struct flow_entry {
+//	u_int8_t id; //表项id
+//	u_int32_t addr; //表项起始地址
+//	u_int32_t dst_ip; //目的ip
+//	u_int16_t trans_port; //UDP端口号
+//	u_int8_t forward_port; //转发端口号
+//} FlowEntry;
 
-//用单链表实现控制器内规则表项的维护
-//单链表节点
-typedef struct node {
-	FlowEntry entry;
-	struct node *next;
-} Node, *Link;
+////用单链表实现控制器内规则表项的维护
+////单链表节点
+//typedef struct node {
+//	FlowEntry entry;
+//	struct node *next;
+//} Node, *Link;
 
 //控制器设备数据结构，用来存放控制器地址信息
 struct ctrl_dev {
@@ -184,3 +186,6 @@ int selected_nid = 0;
 
 // our message queue
 MQueue mqueue;
+
+int ERASE_THRESHOLD_S = 30;
+int REASE_SLEEP_INTERVAL_MS = 300;

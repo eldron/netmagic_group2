@@ -28,7 +28,8 @@ int init_mqueue(MQueue * queue){
 	queue->count = 0;
 	queue->head = queue->tail = NULL;
 	// initialize mutex and cond here
-
+	pthread_mutex_init(&queue->mutex);
+	pthread_cond_init(&queue->cond);
 	return 0;
 }
 
@@ -43,6 +44,8 @@ void delete_mqueue(MQueue * queue){
 	}
 	queue->tail = NULL;
 	// may also destroy mutex and cond here
+	pthread_mutex_destroy(&queue->mutex);
+	pthread_cond_destroy(&queue->cond);
 }
 
 int is_empty(MQueue * queue){
