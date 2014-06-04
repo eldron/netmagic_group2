@@ -6,6 +6,8 @@ exit
 ******************************************************************************************/
 
 #include "nmac.h"
+#include "group2.h"
+#include "utils.h"
 
 #define SET_POLL_TIME_COMMAND 200
 #define SET_EXPIRE_TIME_COMMAND 201
@@ -64,43 +66,73 @@ void do_display_help(){
 
 // execute "set poll_time [seconds]"
 void do_set_poll_time(Tokens * tokens){
-	
+	// set ERASE_SLEEP_INTERVAL_MS
+	ERASE_SLEEP_INTERVAL_MS = 1000 * atoi(tokens->token[2]);
 	printf("Poll time set.\n");
 }
 
 // execute "set expire_time [seconds]"
 void do_set_expire_time(Tokens * tokens){
-	
+	// set ERASE_THRESHOLD_S
+	ERASE_THRESHOLD_S = atoi(tokens->token[2]);
 	printf("Expire time set.\n");
 }
 
 // execute "init forward_table"
 void do_init_forward_table(){
-	
+	FIB_init();
 	printf("Forward table initialized.\n");
 }
 
 // execute "add [table content]"
 void do_add_table(Tokens * tokens){
-
+	FIBItem item;
+	item.port = cal_byte_value(tokens->token[2]);
+	Mac mac;
+	cal_mac(tokens->token[1], &mac);
+	item.dmac = mac;
+	item.type = DMAC;
+	item.valid = 1;
+	item.item_type = ITEM_1;
+	FIB_insert(&item);
 	printf("Table content added.\n");
 }
 
 // execute "display all"
 void do_display_all(){
-
+	int i = 0;
+	for(i = 0;i < FIBSIZE;i++){
+		print_item(&(g_fib[i]));
+	}
 	printf("\n");
 }
 
 // execute "display dmac"
 void do_display_dmac(Tokens * tokens){
-
+	Mac mac;
+	cal_mac(tokens->token[1], &mac);
+	FIBItem * item = FIB_find(mac, DMAC);
+	if(!item){
+		item = FIB_find(mac, SMAC);
+	}
+	print_item(item);
 	printf("\n");
 }
 
 //execute "display dport"
+// dport should be in bitmap format
 void do_display_dport(Tokens * tokens){
-	
+	uint8_t value = 0;
+	uint8_t one = 1;
+	int i = 7;
+	for(i = 7;i >= 0;i--){
+		if(tokens->token[1][7 - i] == '1'){
+			value += (one << i);
+		}
+	}
+
+	FIBItem * item = FIB_find_by_port(value);
+	print_item(item);
 	printf("\n");
 }
 

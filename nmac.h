@@ -16,7 +16,7 @@
 #include <sys/msg.h>
 
 #include "mqueue.h"
-#define PORT_ALL 0x1100
+#define PORT_ALL 0xFF00
 #define PORT_CPU 0x0800
 
 #define NMAC_PROTO 253 		//定义NMAC协议号253

@@ -4,28 +4,12 @@
 static FIB g_fib;
 void FIB_init() {
 	memset(&g_fib, 0, sizeof(g_fib));
+	int i = 0;
+	for(i = 0;i < FIBSIZE;i++){
+		g_fib.at[i].id = i;
+		hw_write_item(&(g_fib.at[i]));
+	}
 }
-
-//uint8_t FIB_insert(FIBItem* item) {
-//	time_t ts = -1;
-//	size_t i;
-//	uint8_t id = 0;
-//	for (i = 0; i < FIBSIZE; ++i) {
-//		FIBItem* x = &g_fib.at[i];
-//		if (!x->ts) {
-//			id = i;
-//			break;
-//		}
-//
-//		if (x->ts <= ts) {
-//			id = i;
-//		}
-//	}
-//	item->id = id;
-//	item->ts = time(0);
-//	memcpy(&g_fib.at[id], item, sizeof(*item));
-//	return id;
-//}
 
 // 根据表项的item_type写入表项，若为第三类表项，从高优先级的地址开始查找空缺位置写入，删除此类表项时，用最后一项替换，需要1或2次硬件写操作
 // 若为第一类和第二类表项，从低优先级的地址开始查找空缺位置写入，删除同上
@@ -91,6 +75,17 @@ FIBItem* FIB_find(Mac mac, int type) {
 	return 0;
 }
 
+FIBItem * FIB_find_by_port(uint8_t value){
+	int i = 0;
+	for(i = 0;i < FIBSIZE;i++){
+		if(g_fib.at[i].valid && g_fib.at[i].port == value){
+			return &(g_fib.at[i]);
+		}
+	}
+	
+	return NULL;
+}
+
 void FIB_delete(FIBItem * item){
 	uint8_t original_id = item->id;
 	uint8_t original_item_type = item->item_type;
@@ -138,25 +133,6 @@ void FIB_delete(FIBItem * item){
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//void eraseThread(void* p) {
-//	size_t i;
-//	time_t ts;
-//	while (!halt_flag) {
-//		ts = time(0);
-//		for (i = 0; i < FIBSIZE; ++i) {
-//			FIBItem* x = &g_fib.at[i];
-//			if (!x->dmac) {
-//				continue;
-//			}
-//			if (ts > x->ts + ERASE_THRESHOLD_S) {
-//				HWFIB_remove(x);
-//				memset(x, 0, sizeof(*x));
-//			}
-//		}
-//		sleep(ERASE_SLEEP_INTERVAL_MS);
-//	}
-//}
 void eraseThread(void * p){
 	int i;
 	time_t ts;
@@ -204,7 +180,11 @@ void onPacketArrival(PacketDigest * d){
 	item = FIB_find(d->dmac, DMAC);
 	if(!item){
 		FIBItem x;
-		x.port = ;// set port to all, except cpu port and d->sport
+		uint8_t all = 0;
+		all = ~all;
+		uint8_t cpu = 8;
+		x.port = all & (~cpu);// set port to all, except cpu port and d->sport
+		x.port = x.port & (~d->sport);
 		x.dmac = d->dmac;
 		x.ts = time(0);
 		x.type = DMAC;
@@ -212,7 +192,7 @@ void onPacketArrival(PacketDigest * d){
 		x.item_type = ITEM_2;
 		FIB_insert(&x);
 
-		x.port = ;// set to cup port
+		x.port = 8;// set to cup port
 		x.smac = d->dmac;
 		x.ts = time(0);
 		x.type = SMAC;
@@ -221,48 +201,3 @@ void onPacketArrival(PacketDigest * d){
 		FIB_insert(&x);
 	}
 }
-
-//void onPacketArrival(PacketDigest* d) {
-//	FIBItem* item;
-//
-//	// Item 1
-//	item = FIB_find(d->smac, DMAC);
-//	if (item) {
-//		// Item already in FIB, update it
-//		if (item->port != d->sport) {
-//			item->port = d->sport;
-//			HWFIB_update(item);
-//		}
-//	} else {
-//		FIBItem x;
-//		x.smac = 0;
-//		x.dmac = d->smac;
-//		x.port = d->sport;
-//		FIB_insert(&x);
-//		HWFIB_insert(&x);
-//	}
-//
-//	// Item 2
-//	item = FIB_find(d->dmac, DMAC);
-//	if (!item) {
-//		// HWFIB_broadcast
-//	}
-//
-//	// Item 3
-//	item = FIB_find(d->dmac, SMAC);
-//	if (!item) {
-//		FIBItem x;
-//		x.smac = d->dmac;
-//		x.dmac = 0;
-//		x.port = PORT_CPU;
-//		FIB_insert(&x);
-//		HWFIB_insert(&x);
-//	}
-//}
-/////////////////////////////////////////////////////////////////////////////////
-//void HWFIB_insert(FIBItem* item) {
-//}
-//void HWFIB_update(FIBItem* item) {
-//}
-//void HWFIB_remove(FIBItem* item) {
-//}

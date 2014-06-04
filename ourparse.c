@@ -39,7 +39,11 @@ void ourparse(){
 
 			uint16_t outport = 0;
 			// set outport here, network endian, set to all, except cpu port and d->sport
-			
+			outport = PORT_ALL & (~PORT_CPU);
+			uint16_t tmp = d->sport;
+			tmp = tmp << 8;
+			outport = outport & (~tmp);
+			outport = htons(outport);
 			// send packet to netmagic
 			send_packet(&msg, outport);
 			break;

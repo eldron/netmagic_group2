@@ -65,6 +65,35 @@ typedef struct _FIBItem {
 	uint8_t item_type;
 } FIBItem;
 
+// print an item, if valid
+void print_item(FIBItem * item){
+	if(item && item->valid){
+		printf("id:%d\t", item->id);
+		if(item->type == SMAC){
+			printf("SMAC: ");
+			int i = 0;
+			for(i = 0;i < 5;i++){
+				hex_print_decimal(item->smac[i]);
+				printf(".");
+			}
+			hex_print_decimal(item->smac[5]);
+			printf("\t");
+		} else {
+			printf("DMAC: ");
+			int i = 0;
+			for(i = 0;i < 5;i++){
+				hex_print_decimal(item->dmac[i]);
+				printf(".");
+			}
+			hex_print_decimal(item->dmac[5]);
+			printf("\t");
+		}
+		printf("port: ");
+		binary_print_byte(item->port);
+		printf("\n");
+	}
+}
+
 // Forwarding Information Base
 typedef struct _FIB {
 	FIBItem at[FIBSIZE];
@@ -73,6 +102,7 @@ typedef struct _FIB {
 void FIB_init();
 uint8_t FIB_insert(FIBItem* item);
 FIBItem* FIB_find(Mac mac, int type);
+FIBItem * FIB_find_by_port(uint8_t value);
 void FIB_delete(FIBItem * item);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,4 +160,3 @@ int hw_write_item(FIBItem * item){
 	printf("Written the item %d successfully!\n", item->id);
 	return 1;
 }
-
