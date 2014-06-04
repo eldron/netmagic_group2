@@ -38,8 +38,8 @@ void get_tokens(char * command, Tokens * tokens){
 		}
 
 		// found a token
+		tokens->len[tokens->count] = 0;
 		while(command[i] != ' ' && command[i] != '\t' && command[i] != '\0' && command[i] != '\n'){
-			tokens->len[tokens->count] = 0;
 			tokens->token[tokens->count][tokens->len[tokens->count]] = command[i];
 			i++;
 			tokens->len[tokens->count]++;
@@ -152,7 +152,7 @@ int get_command_type(Tokens * tokens){
 		if(strcmp(tokens->token[0], "set") == 0 && strcmp(tokens->token[1], "poll_time") == 0){
 			return SET_POLL_TIME_COMMAND;
 		} else if(strcmp(tokens->token[0], "set") == 0 && strcmp(tokens->token[1], "expire_time") == 0){
-			return SET_RXPIRE_TIME_COMMAND;
+			return SET_EXPIRE_TIME_COMMAND;
 		} else if(strcmp(tokens->token[0], "add") == 0){
 			return ADD_TABLE_COMMAND;
 		} else {
@@ -172,24 +172,34 @@ void do_command(char * command, Tokens * tokens){
 	switch(type){
 	case SET_POLL_TIME_COMMAND:
 		do_set_poll_time(tokens);
+		break;
 	case SET_EXPIRE_TIME_COMMAND:
 		do_set_expire_time(tokens);
+		break;
 	case INIT_FORWARD_TABLE_COMMAND:
 		do_init_forward_table();
+		break;
 	case ADD_TABLE_COMMAND:
 		do_add_table(tokens);
+		break;
 	case DISPLAY_ALL_COMMAND:
 		do_display_all();
+		break;
 	case DISPLAY_DMAC_COMMAND:
 		do_display_dmac(tokens);
+		break;
 	case DISPLAY_DPORT_COMMAND:
 		do_display_dport(tokens);
+		break;
 	case EXIT_COMMAND:
 		do_exit();
+		break;
 	case DISPLAY_HELP_COMMAND:
 		do_display_help();
+		break;
 	default:
 		do_command_not_found(tokens);
+		break;
 	}
 }
 
@@ -206,10 +216,10 @@ void console(){
 	Tokens tokens;
 	while(!halt_flag){
 		memset(command, '\0', 100);
+		printf("\n$:");
 		if(fgets(command, 100, stdin)){
 			// execute each command
 			do_command(command, &tokens);
-			printf("\n$:");
 		} else {
 			halt_flag = 1;
 			break;
