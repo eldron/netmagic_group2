@@ -2,8 +2,8 @@
 /*..........获取controller的IP地址、MAC地址..........*/
 /*..........配置bpf过滤规则..........*/
 /*..........创建报文缓存队列..........*/
-#include"nmac.h"
-
+#include "nmac.h"
+#include "mqueue.h"
 #undef ether_addr_octet
 
 int contr_init() {
@@ -66,6 +66,9 @@ int contr_init() {
 	//	printf("Creating queqe successed! msg_id=%d\n", msg_id);
 	//}
 	init_mqueue(&mqueue);
+	ERASE_THRESHOLD_S = 30;
+	ERASE_SLEEP_INTERVAL_MS = 300;
+	selected_nid = 0;
 
 	return 1;
 }

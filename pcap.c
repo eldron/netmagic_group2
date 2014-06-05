@@ -1,5 +1,6 @@
 /*..........子线程不停抓包并存入缓存队列..........*/
 #include"nmac.h"
+#include "mqueue.h"
 
 ///*回调函数*/
 //void packet_callback(u_char *argument, const struct pcap_pkthdr* packet_header,

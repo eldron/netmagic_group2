@@ -183,10 +183,10 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data); //Ð´Êý¾Ý
 
 // added by Li Jie on 2014.5.27, set the value in demo_test.c, used by function hw_write_item in group2.h
 // in fact it is 0
-int selected_nid = 0;
+int selected_nid;
 
 // our message queue
 MQueue mqueue;
 
-int ERASE_THRESHOLD_S = 30;
-int ERASE_SLEEP_INTERVAL_MS = 300;
+int ERASE_THRESHOLD_S;
+int ERASE_SLEEP_INTERVAL_MS;

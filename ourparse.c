@@ -2,6 +2,8 @@
 
 #include "nmac.h"
 #include "group2.h"
+#include "mqueue.h"
+
 void ourparse(){
 	while(!halt_flag){
 		Message msg;
