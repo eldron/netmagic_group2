@@ -1,3 +1,0 @@
-gcc -O0 -g3 -c init.c flow_operate.c list_operate.c parsing.c pcap.c nmac_init.c write_data.c demo_test.c else.c group2.c
-ar -rcv libnmac.a init.o flow_operate.o list_operate.o parsing.o pcap.o nmac_init.o write_data.o demo_test.o else.o group2.o
-gcc -O0 -g3 -o test  test.c libnmac.a -lpcap -lnet -lpthread

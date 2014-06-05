@@ -1,4 +1,0 @@
-rm -f *.o
-gcc -O0 -g3 -c console.c group2.c init.c nmac_init.c ourparse.c pcap.c send_packet.c write_data.c
-ar -rcv libnmac.a console.o group2.o init.o nmac_init.o ourparse.o pcap.o send_packet.o write_data.o
-gcc -O0 -g3 -o test test.c libnmac.a -lpcap -lnet -lpthread
