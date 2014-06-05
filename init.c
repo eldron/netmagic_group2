@@ -52,7 +52,7 @@ int contr_init() {
 		//完成BPF字符串赋值
 
 		//pcap_compile(pcap_handle, &bpf_filter_nmac, bpf_filter_string, 0,
-				net_ip); //编译过滤规则
+		//		net_ip); //编译过滤规则
 		pcap_compile(pcap_handle, &bpf_filter_nmac, "ip proto 253", 0, net_ip);
 		pcap_setfilter(pcap_handle, &bpf_filter_nmac); //设置过滤规则
 	}

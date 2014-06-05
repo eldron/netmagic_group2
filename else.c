@@ -1,6 +1,7 @@
 /*...将十六进制转化为十进制处理*/
 
-#include<stdio.h>
+#include <stdio.h>
+#include "nmac.h"
 
 int hextodec(char x) {
 	int n;

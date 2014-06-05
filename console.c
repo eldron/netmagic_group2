@@ -7,7 +7,7 @@ exit
 
 #include "nmac.h"
 #include "group2.h"
-#include "utils.h"
+//#include "utils.h"
 
 #define SET_POLL_TIME_COMMAND 200
 #define SET_EXPIRE_TIME_COMMAND 201
@@ -102,7 +102,7 @@ void do_add_table(Tokens * tokens){
 void do_display_all(){
 	int i = 0;
 	for(i = 0;i < FIBSIZE;i++){
-		print_item(&(g_fib[i]));
+		print_item(&(g_fib.at[i]));
 	}
 	printf("\n");
 }

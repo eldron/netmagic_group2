@@ -189,4 +189,4 @@ int selected_nid = 0;
 MQueue mqueue;
 
 int ERASE_THRESHOLD_S = 30;
-int RRASE_SLEEP_INTERVAL_MS = 300;
+int ERASE_SLEEP_INTERVAL_MS = 300;

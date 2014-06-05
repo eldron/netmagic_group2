@@ -63,11 +63,11 @@ FIBItem* FIB_find(Mac mac, int type) {
 	for (i = 0; i < FIBSIZE; ++i) {
 		FIBItem* x = &g_fib.at[i];
 		if (type == DMAC) {
-			if (x->dmac == mac) {
+			if (mac_equals(&(x->dmac), &mac)) {
 				return x;
 			}
 		} else if (type == SMAC) {
-			if (x->smac == mac) {
+			if (mac_equals(&(x->smac), &mac)) {
 				return x;
 			}
 		}
@@ -89,10 +89,11 @@ FIBItem * FIB_find_by_port(uint8_t value){
 void FIB_delete(FIBItem * item){
 	uint8_t original_id = item->id;
 	uint8_t original_item_type = item->item_type;
-	
+	int original_pri;
+	int pri;
 	if(original_item_type == ITEM_3){
-		int original_pri = id_to_priority(original_id);
-		int pri = original_pri;
+		original_pri = id_to_priority(original_id);
+		pri = original_pri;
 		while(1){
 			if(g_fib.at[pri_to_id(pri - 1)].valid){
 				--pri;
@@ -102,8 +103,8 @@ void FIB_delete(FIBItem * item){
 			}
 		}
 	} else {
-		int original_pri = id_to_priority(original_id);
-		int pri = original_pri;
+		original_pri = id_to_priority(original_id);
+		pri = original_pri;
 		while(1){
 			if(g_fib.at[pri_to_id(pri + 1)].valid){
 				++pri;

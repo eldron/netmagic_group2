@@ -35,7 +35,7 @@ int main() {
 	}
 
 
-	parsing();
+	ourparse();
 	while (1) //等待消息队列删除
 	{
 		if (pt1_num == 0)
