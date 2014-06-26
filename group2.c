@@ -205,17 +205,19 @@ int hw_write_item(FIBItem * item){
 	data.length = sizeof(FFT);
 	memcpy(data.content, (uint8_t *) (&fft), sizeof(FFT));
 	enqueue(&data_queue, &data);
-printf("enqueued to data queue, %d in data queue\n", data_queue.count);
+#ifdef DEBUG
+	printf("enqueued to data queue, %d in data queue\n", data_queue.count);
+#endif
 	sleep(TIME_OUT_INTERVAL_MS / 1000);
 	if (timeout_flag) {
 		timeout_flag = 0;
 		return 0;
 	}
 	
-//#ifdef DEBUG
+#ifdef DEBUG
 	printf("Written the item %d successfully! item type = %d\n", item->id, item->item_type);
-//#endif
-print_item_to_file(stderr, item);
+	print_item_to_file(stderr, item);
+#endif
 	return 1;
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -363,9 +365,9 @@ void FIB_delete(FIBItem * item){
 		g_fib.at[original_id] = tmp;
 		memset(&g_fib.at[pri_to_id(pri)], 0, sizeof(*item));
 	}
-//#ifdef DEBUG
+#ifdef DEBUG
 	printf("deleted an item, id = %d, type = %d, pri = %d\n", original_id, original_item_type, original_pri);
-//#endif
+#endif
 }
 
 void eraseThread(void * p){
@@ -417,7 +419,9 @@ void onPacketArrival(PacketDigest * d){
 			item->ts = time(0);
 			hw_write_item(item);
 		} else {
+#ifdef DEBUG
 			printf("no need to update ITEM 1\n");
+#endif
 		}
 	} else {
 		FIBItem x;
@@ -438,7 +442,9 @@ void onPacketArrival(PacketDigest * d){
 		tmpmac.mac[i] = ~tmpmac.mac[i];
 	}
 	if(mac_equals(&tmpmac, &(d->dmac))){
+#ifdef DEBUG
 		printf("ignore broadcast packet in onPacketArrival\n");
+#endif
 		return;
 	}
 	
@@ -466,6 +472,8 @@ void onPacketArrival(PacketDigest * d){
 		x.item_type = ITEM_3;
 		FIB_insert(&x);
 	}else {
+#ifdef DEBUG
 		printf("no need to insert ITEM 2 and ITEM 3 in onPacketArrival\n");
+#endif
 	}
 }

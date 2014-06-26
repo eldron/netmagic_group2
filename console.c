@@ -53,14 +53,14 @@ void get_tokens(char * command, Tokens * tokens){
 // execute "?"
 void do_display_help(){
 	printf("Available commands:\n");
-	printf("?	:	显示支持的所有命令\n");
-	printf("set poll_time [seconds]	:	设置老化轮询时间间隔\n");
-	printf("set expire_time [seconds]	:	设置老化时间\n");
-	printf("init forward_table	:	初始化转发表\n");
-	printf("add [table content]	:	写指定转发表项\n");
-	printf("display all	:	显示所有转发表项\n");
-	printf("display [dmac/dport]	:	根据条件查找转发表\n");
-	printf("exit	:	退出\n");
+	printf("?	:	print all available commands\n");
+	printf("set poll_time [seconds]	:	set poll time for erase thread\n");
+	printf("set expire_time [seconds]	:	set expire time for an item\n");
+	printf("init forward_table	:	initialize forward table\n");
+	printf("add [table content]	:	add an item in the forward table\n");
+	printf("display all	:	display all items in the forward table\n");
+	printf("display [dmac/dport]	:	loop up an item in the forward table\n");
+	printf("exit	:	exit\n");
 	printf("\n");
 }
 
@@ -139,10 +139,8 @@ void do_display_dport(Tokens * tokens){
 // execute "exit"
 void do_exit(){
 	halt_flag = 1;
-
-//#ifdef DEBUG
-	printf("from do exit: halt flag set!\n");
-//#endif
+	printf("Bye:)\n");
+	exit(0);
 }
 
 void do_command_not_found(Tokens * tokens){

@@ -7,7 +7,9 @@ void packet_callback(u_char * argument, const struct pcap_pkthdr * packet_header
 	Message msg;
 	msg.length = packet_header->len;
 	memcpy(&(msg.content), packet_content, msg.length);
-printf("from packet callback: msg.length = %d\n", msg.length);
+#ifdef DEBUG
+	printf("from packet callback: msg.length = %d\n", msg.length);
+#endif
 	if(enqueue(&mqueue, &msg)){
 		//printf("enqueued a message, %d messages in queue\n", mqueue.count);
 	}

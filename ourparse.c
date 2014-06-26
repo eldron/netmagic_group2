@@ -8,7 +8,7 @@ void ourparse(){
 	while(!halt_flag){
 		//if(pause_flag){
 			//continue;
-		//}å#
+		//}é”Ÿï¿½#
 		Message msg;
 		dequeue(&mqueue, &msg);
 		//printf("dequeued a message, %d messages in queue\n", mqueue.count);
@@ -22,17 +22,22 @@ void ourparse(){
 			con_flag = 1;
 			break;
 		case 5:
+#ifdef DEBUG
 			printf("from ourparse: received read response\n");
+#endif
 			break;
 		case 6:
+#ifdef DEBUG
 			printf("from ourparse: received write response\n");
+#endif
 			write_pkt_buf = (char *) (msg.content);
 			write_flag = 1;
 			break;
 		case 7:
+#ifdef DEBUG
 			printf("from ourparse: received asy message\n");
-			// our logic
-			// ½ÓÊÕÓ²¼ş²é±íÃ»ÃüÖĞµÄ°ü£¬ĞŞ¸Ä¿ØÖÆÆ÷ºÍnetmagicÖĞµÄ×ª·¢±í£¬¹¹ÔìtypeÎª8µÄÊı¾İ°ü£¬·¢ËÍ¸ønetmagic
+#endif
+			;
 			uint16_t outport = 0;
 			// set outport here, network endian, set to all, except cpu port and d->sport
 			//outport = PORT_ALL & (~PORT_CPU);
@@ -42,10 +47,10 @@ void ourparse(){
 			//outport = htons(outport);
 			outport = htons(PORT_ALL);
 			// send packet to netmagic
-			send_packet(&msg, outport);
+			//send_packet(&msg, outport);
 			
 			PacketDigest d;
-			uint8_t * ptr = (uint8_t *) (msg.content + 34 + sizeof(struct nmac_header) + 4);// Ö¸ÏòÕı³£ÒÔÌ«Íø±¨ÎÄµÄmacÍ·²¿
+			uint8_t * ptr = (uint8_t *) (msg.content + 34 + sizeof(struct nmac_header) + 4);// é¸å›§æ‚œå§ï½…çˆ¶æµ ãƒ¥ãŠç¼ƒæˆå§¤é‚å›©æ®‘macæ¾¶æ’®å„´
 			memcpy(&d.dmac, ptr, 6);
 			memcpy(&d.smac, ptr + 6, 6);
 /*
@@ -61,9 +66,18 @@ for(i = 0;i < 6;i++){
 }
 fprintf(stdout, "\n");
 */
-			ptr = (uint8_t *) (msg.content + 41); // Ö¸Ïò¶Ë¿Ú
+			ptr = (uint8_t *) (msg.content + 41); // é¸å›§æ‚œç»”îˆšå½›
 			memcpy(&d.sport, ptr, 1);
-print_packet_digest(stdout, &d);
+
+			// send the packet to netmagic
+			uint16_t tmp = d.sport;
+			tmp = tmp << 8;
+			outport = outport & (~tmp);
+			send_packet(&msg, outport);
+
+#ifdef DEBUG
+			print_packet_digest(stdout, &d);
+#endif
 			onPacketArrival(&d);
 			break;
 		default:

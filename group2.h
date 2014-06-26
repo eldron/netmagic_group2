@@ -77,3 +77,4 @@ typedef struct _PacketDigest {
 void print_packet_digest(FILE * file, PacketDigest * d);
 void onPacketArrival(PacketDigest* d);
 int hw_write_item(FIBItem * item);
+void ourparse();

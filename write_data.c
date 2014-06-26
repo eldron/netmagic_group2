@@ -22,7 +22,9 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 
 	if (num * 4 > 1466) //写入数据长度溢出处理
 			{
-		printf("ERROR! Write_Data Size Overflowing!\n");
+#ifdef DEBUG
+		printf("from nmac_write_data: ERROR! Write_Data Size Overflowing!\n");
+#endif
 		//timeout_flag = 1; //为操作方便，统一用timeout_flag作为不成功标志位
 		return;
 	}
@@ -71,7 +73,9 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 			return;
 		}*/
 		if(end.tv_sec - start.tv_sec > 2){
+#ifdef DEBUG
 			printf("from nmac write data: time out\n");
+#endif
 			timeout_flag = 1;
 			return;
 		}
@@ -82,7 +86,9 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 			write_flag = 0;
 			if (nmac_seq == ntohs(nmac_hdr->seq)) //序列号一致
 			{
-				printf("Write data success!\n");
+#ifdef DEBUG
+				printf("from nmac_write_data: Write data success!\n");
+#endif
 				//write_flag = 0;
 				//pause_flag = 0;
 				//libnet_clear_packet(l);

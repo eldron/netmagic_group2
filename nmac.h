@@ -14,6 +14,7 @@
 #include<unistd.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <stdint.h>
 
 #include "mqueue.h"
 #define PORT_ALL 0xFF00

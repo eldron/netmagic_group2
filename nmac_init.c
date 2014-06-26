@@ -138,7 +138,7 @@ int nmac_init(int netmagic_id) //连接成功返回1
 			nmac_hdr = (struct nmac_header *) (con_pkt_buf + 34);
 			if (nmac_seq == ntohs(nmac_hdr->seq)) //序列号一致
 			{
-				printf("Connecting success!\n");
+				printf("Connection success!\n");
 				con_flag = 0;
 				//pause_flag = 0;
 				//Link H = Creat_List();
