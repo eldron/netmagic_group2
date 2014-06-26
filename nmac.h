@@ -17,15 +17,17 @@
 
 #include "mqueue.h"
 #define PORT_ALL 0xFF00
-#define PORT_CPU 0x0800
+#define PORT_CPU 0x0100
+
+#define TIME_OUT_INTERVAL_MS 3000
 
 #define NMAC_PROTO 253 		//定义NMAC协议号253
 #define BUFFER 366 			//读数据缓存大小366*4字节
 u_int32_t * nmac_errbuf; //存放错误代码
 
-key_t key; //消息队列的键值
-#define key 3323 //33
-int msg_id; //消息队列的ID
+//key_t key; //消息队列的键值
+//#define key 3323 //33
+//int msg_id; //消息队列的ID
 
 //消息队列中报文消息的缓冲区结构
 //利用了系统中的消息队列，最好自己实现一个
@@ -118,7 +120,7 @@ int read_flag; //读响应就绪标志位
 int write_flag; //写响应就绪标志位
 //int asy_flag; //异步消息就绪标志位
 //int packet_num; //缓存队列中当前报文数
-int pt1_num;
+//int pt1_num;
 
 char *con_pkt_buf; //连接报文缓存
 char *read_pkt_buf; //读响应报文缓存
@@ -138,9 +140,11 @@ struct bpf_program bpf_filter_nmac; //BPF过滤规则
 
 // edited by lijie
 //char bpf_filter_string[100]; //BPF过滤字符串
+char *bpf_filter_string;
 
 char pcap_errbuf[PCAP_ERRBUF_SIZE];
 libnet_t * l; //Libnet句柄
+libnet_t * group2_l;
 libnet_ptag_t ip_protocol_tag; //IP数据块协议标记
 libnet_ptag_t ether_protocol_tag; // 以太网数据块协议标记
 
@@ -157,6 +161,7 @@ void packet_capture(); //抓包函数
 //void parsing(); //解析&分发报文函数
 //void demo_test(); //演示UI
 void console();
+void write_data_thread();
 //int hextodec(char x); //将十六进制转化为十进制处理
 
 //4个基本接口函数
@@ -188,5 +193,11 @@ int selected_nid;
 // our message queue
 MQueue mqueue;
 
+// queue for data to write to NetMagic
+MQueue data_queue;
+
 int ERASE_THRESHOLD_S;
 int ERASE_SLEEP_INTERVAL_MS;
+
+FILE * DEBUG_FILE;
+

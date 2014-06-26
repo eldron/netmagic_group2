@@ -124,6 +124,7 @@ int nmac_init(int netmagic_id) //连接成功返回1
 	gettimeofday(&start, NULL);
 
 	packet_size = libnet_write(l); //发送连接请求数据包
+	libnet_clear_packet(l);
 	printf("Send a NMAC_Startup_Request!\n");
 	//printf("Send len is: %d\n",packet_size);
 	while (1) {
@@ -139,7 +140,7 @@ int nmac_init(int netmagic_id) //连接成功返回1
 			{
 				printf("Connecting success!\n");
 				con_flag = 0;
-				pause_flag = 0;
+				//pause_flag = 0;
 				//Link H = Creat_List();
 				//(&NM[0])->head = H;
 				int i;

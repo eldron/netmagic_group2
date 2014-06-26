@@ -6,6 +6,11 @@
 //#define ERASE_SLEEP_INTERVAL_MS 300
 //#define ERASE_THRESHOLD_S 30
 
+/*
+	第一类表项:正常的根据目的mac地址转发表项
+	第二类表项:根据目的mac地址广播的表项
+	第三类表项:转发到控制器的表项
+*/
 #define ITEM_1 100
 #define ITEM_2 101
 #define ITEM_3 102
@@ -38,13 +43,14 @@ typedef struct _FIBItem {
 	uint8_t item_type;
 } FIBItem;
 
-void binary_print_byte(uint8_t value);
+void binary_print_byte(FILE * file, uint8_t value);
 char dec_to_hex(uint8_t value);
 uint8_t cal_byte_value(char * s);
 void cal_mac(char * s, Mac * mac);
-void hex_print_decimal(uint8_t value);
+void hex_print_decimal(FILE * file, uint8_t value);
 void print_item(FIBItem * item);
-
+void print_item_to_file(FILE * file, FIBItem * item);
+	
 // Forwarding Information Base
 typedef struct _FIB {
 	FIBItem at[FIBSIZE];
@@ -68,5 +74,6 @@ typedef struct _PacketDigest {
 	uint8_t sport;// bitmap
 } PacketDigest;
 
+void print_packet_digest(FILE * file, PacketDigest * d);
 void onPacketArrival(PacketDigest* d);
 int hw_write_item(FIBItem * item);

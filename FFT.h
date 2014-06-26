@@ -23,9 +23,12 @@ typedef struct {
 	uint32_t dip_mask;
 	uint16_t sport_mask;
 	uint16_t dport_mask;
-	uint8_t valid:2;
-	uint8_t base_action:2;
+	//uint8_t valid:2;
+	//uint8_t base_action:2;
+	//uint8_t postprocessor_bitmap:4;
 	uint8_t postprocessor_bitmap:4;
+	uint8_t base_action:2;
+	uint8_t valid:2;
 	uint8_t output;
 	uint8_t user_define[2];
 } FFT;

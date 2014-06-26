@@ -5,10 +5,14 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+// also used for sending data to NetMagic
 typedef struct {
-	int length;
+	int length; // in bytes
+	u_int32_t addr;// 作为数据时使用
 	char content[1500];
 } Message;
+
+typedef Message Data;
 
 typedef struct _Node {
 	Message msg;

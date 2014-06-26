@@ -2,6 +2,10 @@
 
 #include"nmac.h"
 
+/*
+	此函数不应该和消息队列的dequeue  操作在一个线程里面调用
+	将要发送的数据添加到data_queue  中去
+*/
 void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 	struct timeval start, end; //监测时间
 	ip_protocol_tag = 0; //IP数据块协议标记
@@ -13,12 +17,13 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 	u_int32_t * data_net;
 	data_net = (u_int32_t*) malloc(num * sizeof(u_int32_t));
 	for (i = 0; i < num; i++)
-		data_net[i] = htonl(data[i]);
+		//data_net[i] = htonl(data[i]);
+		data_net[i] = data[i];
 
 	if (num * 4 > 1466) //写入数据长度溢出处理
 			{
 		printf("ERROR! Write_Data Size Overflowing!\n");
-		timeout_flag = 1; //为操作方便，统一用timeout_flag作为不成功标志位
+		//timeout_flag = 1; //为操作方便，统一用timeout_flag作为不成功标志位
 		return;
 	}
 	u_int16_t nmac_seq = 0; //或定为随机数,用来定向回来的报文
@@ -53,13 +58,20 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 	//发送写数据请求报文
 	gettimeofday(&start, NULL);
 	packet_size = libnet_write(l);
-
+	libnet_clear_packet(l);
+	
 	while (1) {
 		gettimeofday(&end, NULL);
 		//判断超时
+		/*
 		if ((float) ((1000000 * (end.tv_sec - start.tv_sec)
 				+ (end.tv_usec - start.tv_usec)) / 1000000) > 2.5) {
-			printf("ERROR! Read Data Time Out!\n");
+			printf("ERROR! Time Out!\n");
+			timeout_flag = 1;
+			return;
+		}*/
+		if(end.tv_sec - start.tv_sec > 2){
+			printf("from nmac write data: time out\n");
 			timeout_flag = 1;
 			return;
 		}
@@ -67,12 +79,13 @@ void nmac_write_data(u_int32_t addr, int num, u_int32_t* data) {
 		else if (write_flag == 1) //收到读响应报文
 				{
 			nmac_hdr = (struct nmac_header *) (write_pkt_buf + 34);
+			write_flag = 0;
 			if (nmac_seq == ntohs(nmac_hdr->seq)) //序列号一致
 			{
 				printf("Write data success!\n");
-				write_flag = 0;
-				pause_flag = 0;
-				libnet_clear_packet(l);
+				//write_flag = 0;
+				//pause_flag = 0;
+				//libnet_clear_packet(l);
 				return;
 			}
 		}

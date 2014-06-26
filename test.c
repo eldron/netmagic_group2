@@ -4,7 +4,8 @@
 #include "nmac.h"
 #include "group2.h"
 int main() {
-	pt1_num = 0;
+//DEBUG_FILE = fopen("table.txt", "w");
+//	pt1_num = 0;
 	//初始化控制器信息
 	if(contr_init()){
 		printf("Initialized controller successfully!\n");
@@ -19,27 +20,35 @@ int main() {
 	if (ret != 0) {
 		printf("Failed to create packet capture thread!\n");
 		return 1;
-	} else
-		pt1_num = 1;
+	} else {
+		//pt1_num = 1;
+		printf("created packet capture thread\n");
+	}
 
+	ret = pthread_create(&pt, NULL, (void *) (&write_data_thread), NULL);// 写数据线程
+	if(ret){
+		printf("failed to create write data thread!\n");
+	} else {
+		printf("created write data thread\n");
+	}
+	
 	ret = pthread_create(&pt, NULL, (void *) (&console), NULL); //Demo演示线程
 	if (ret != 0) {
 		printf("Failed to create console thread!\n");
 		return 1; 
+	} else {
+		printf("created console thread\n");
 	}
 
 	ret = pthread_create(&pt, NULL, (void *) (&eraseThread), NULL); // erase thread
 	if (ret != 0) {
 		printf("Failed to create erase thread!\n");
 		return 1; 
+	} else {
+		printf("created erase thread\n");
 	}
 
 
 	ourparse();
-	while (1) //等待消息队列删除
-	{
-		if (pt1_num == 0)
-			break;
-	}
 }
 

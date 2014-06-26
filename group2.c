@@ -43,14 +43,14 @@ uint8_t pri_to_id(int pri){
 }
 
 // print a byte in binary form
-void binary_print_byte(uint8_t value){
+void binary_print_byte(FILE * file, uint8_t value){
 	uint8_t tmp = 1;
 	int i = 7;
 	for(i = 7;i >= 0;i--){
 		if(value & (tmp << i)){
-			printf("1");
+			fprintf(file, "1");
 		} else {
-			printf("0");
+			fprintf(file, "0");
 		}
 	}
 }
@@ -104,9 +104,9 @@ void cal_mac(char * s, Mac * mac){
 }
 
 // print a decimal value in hex form
-void hex_print_decimal(uint8_t value){
-	printf("%c", dec_to_hex(value / 16));
-	printf("%c", dec_to_hex(value % 16));
+void hex_print_decimal(FILE * file, uint8_t value){
+	fprintf(file, "%c", dec_to_hex(value / 16));
+	fprintf(file, "%c", dec_to_hex(value % 16));
 }
 
 // print an item, if valid
@@ -117,27 +117,54 @@ void print_item(FIBItem * item){
 			printf("SMAC: ");
 			int i = 0;
 			for(i = 0;i < 5;i++){
-				hex_print_decimal(item->smac.mac[i]);
+				hex_print_decimal(stdout, item->smac.mac[i]);
 				printf(".");
 			}
-			hex_print_decimal(item->smac.mac[5]);
+			hex_print_decimal(stdout, item->smac.mac[5]);
 			printf("\t");
 		} else {
 			printf("DMAC: ");
 			int i = 0;
 			for(i = 0;i < 5;i++){
-				hex_print_decimal(item->dmac.mac[i]);
+				hex_print_decimal(stdout, item->dmac.mac[i]);
 				printf(".");
 			}
-			hex_print_decimal(item->dmac.mac[5]);
+			hex_print_decimal(stdout, item->dmac.mac[5]);
 			printf("\t");
 		}
 		printf("port: ");
-		binary_print_byte(item->port);
+		binary_print_byte(stdout, item->port);
 		printf("\n");
 	}
 }
 
+void print_item_to_file(FILE * file, FIBItem * item){
+	if(item && item->valid){
+		fprintf(file, "id:%d\t", item->id);
+		if(item->type == SMAC){
+			fprintf(file, "SMAC: ");
+			int i = 0;
+			for(i = 0;i < 5;i++){
+				hex_print_decimal(file, item->smac.mac[i]);
+				fprintf(file, ".");
+			}
+			hex_print_decimal(file, item->smac.mac[5]);
+			fprintf(file, "\t");
+		} else {
+			fprintf(file, "DMAC: ");
+			int i = 0;
+			for(i = 0;i < 5;i++){
+				hex_print_decimal(file, item->dmac.mac[i]);
+				fprintf(file, ".");
+			}
+			hex_print_decimal(file, item->dmac.mac[5]);
+			fprintf(file, "\t");
+		}
+		fprintf(file, "port: ");
+		binary_print_byte(file, item->port);
+		fprintf(file, "\n");
+	}
+}
 // write an item into netmagic
 // the id in FIBItem represents the hardware address in netmagic
 // return 1 if successful, return 0 instead
@@ -158,22 +185,37 @@ int hw_write_item(FIBItem * item){
 		}
 	}
 	fft.valid = item->valid;// set valid
-	fft.base_action = 1;// set base_action
+	//fft.base_action = 1;// set base_action
 	// no need to set postprocessor_bitmap
 	fft.output = item->port;// set output port
-	// no need to set user_define
+	// set user_define, if ITEM_3
+	if(item->item_type == ITEM_3){
+		fft.user_define[0] = 1;
+		fft.user_define[0] = fft.user_define[0] << 7;
+	}
 
 	//取得要操作的netmagic的mac地址，ip地址
 	netmagic_net_ip = libnet_name2addr4(l, (&NM[selected_nid])->netmagic_ip,
 			LIBNET_DONT_RESOLVE);
 	memcpy(&netmagic_mac, (&NM[selected_nid])->netmagic_mac, 6);
 
-	nmac_write_data(ITEM_BASE_ADDR + 16 * item->id, sizeof(FFT) / 4, (uint32_t *) &fft); //发送nmac写报文
+	//nmac_write_data(ITEM_BASE_ADDR + 16 * item->id, sizeof(FFT) / 4, (uint32_t *) &fft); //发送nmac写报文
+	Data data;
+	data.addr = ITEM_BASE_ADDR + 16 * item->id;
+	data.length = sizeof(FFT);
+	memcpy(data.content, (uint8_t *) (&fft), sizeof(FFT));
+	enqueue(&data_queue, &data);
+printf("enqueued to data queue, %d in data queue\n", data_queue.count);
+	sleep(TIME_OUT_INTERVAL_MS / 1000);
 	if (timeout_flag) {
 		timeout_flag = 0;
 		return 0;
 	}
-	printf("Written the item %d successfully!\n", item->id);
+	
+//#ifdef DEBUG
+	printf("Written the item %d successfully! item type = %d\n", item->id, item->item_type);
+//#endif
+print_item_to_file(stderr, item);
 	return 1;
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,6 +227,19 @@ void FIB_init() {
 		g_fib.at[i].id = i;
 		hw_write_item(&(g_fib.at[i]));
 	}
+	//为广播地址插入一条表项
+	FIBItem x;
+	x.port = 0;
+	x.port = ~x.port;
+	for(i = 0;i < 6;i++){
+		x.dmac.mac[i] = 0;
+		x.dmac.mac[i] = ~x.dmac.mac[i];
+	}
+	x.ts = time(0);
+	x.type = DMAC;
+	x.valid = 1;
+	x.item_type = ITEM_1;
+	FIB_insert(&x);
 }
 
 // 根据表项的item_type写入表项，若为第三类表项，从高优先级的地址开始查找空缺位置写入，删除此类表项时，用最后一项替换，需要1或2次硬件写操作
@@ -308,6 +363,9 @@ void FIB_delete(FIBItem * item){
 		g_fib.at[original_id] = tmp;
 		memset(&g_fib.at[pri_to_id(pri)], 0, sizeof(*item));
 	}
+//#ifdef DEBUG
+	printf("deleted an item, id = %d, type = %d, pri = %d\n", original_id, original_item_type, original_pri);
+//#endif
 }
 
 void eraseThread(void * p){
@@ -322,12 +380,29 @@ void eraseThread(void * p){
 				}
 			}
 		}
-		sleep(ERASE_SLEEP_INTERVAL_MS);
+		sleep(ERASE_SLEEP_INTERVAL_MS / 1000);
 	}
 }
 
+void print_packet_digest(FILE * file, PacketDigest * d){
+	fprintf(file, "DMAC: ");
+	int i = 0;
+	for(i = 0;i < 6;i++){
+		hex_print_decimal(file, d->dmac.mac[i]);
+		fprintf(file, ":");
+	}
+	fprintf(file, "\t SMAC: ");
+	for(i = 0;i < 6;i++){
+		hex_print_decimal(file, d->smac.mac[i]);
+		fprintf(file, ":");
+	}
+	fprintf(file, "\t S_PORT: ");
+	binary_print_byte(file, d->sport);
+	fprintf(file, "\n");
+}
+
 void onPacketArrival(PacketDigest * d){
-	// delete ITEM_1
+	// delete ITEM_3
 	FIBItem * item = FIB_find(d->smac, SMAC);
 	if(item){
 		FIB_delete(item);
@@ -341,6 +416,8 @@ void onPacketArrival(PacketDigest * d){
 			item->port = d->sport;
 			item->ts = time(0);
 			hw_write_item(item);
+		} else {
+			printf("no need to update ITEM 1\n");
 		}
 	} else {
 		FIBItem x;
@@ -353,14 +430,26 @@ void onPacketArrival(PacketDigest * d){
 		FIB_insert(&x);
 	}
 
+	// 忽略广播包，目的mac地址全F
+	Mac tmpmac;
+	int i = 0;
+	for(i = 0;i < 6;i++){
+		tmpmac.mac[i] = 0;
+		tmpmac.mac[i] = ~tmpmac.mac[i];
+	}
+	if(mac_equals(&tmpmac, &(d->dmac))){
+		printf("ignore broadcast packet in onPacketArrival\n");
+		return;
+	}
+	
 	// 写入第二类和第三类表项
 	item = FIB_find(d->dmac, DMAC);
 	if(!item){
 		FIBItem x;
 		uint8_t all = 0;
 		all = ~all;
-		uint8_t cpu = 8;
-		x.port = all & (~cpu);// set port to all, except cpu port and d->sport
+		//uint8_t cpu = 1;
+		x.port = all;// set port to all, except d->sport
 		x.port = x.port & (~d->sport);
 		x.dmac = d->dmac;
 		x.ts = time(0);
@@ -369,12 +458,14 @@ void onPacketArrival(PacketDigest * d){
 		x.item_type = ITEM_2;
 		FIB_insert(&x);
 
-		x.port = 8;// set to cup port
+		x.port = 1;// set to cup port
 		x.smac = d->dmac;
 		x.ts = time(0);
 		x.type = SMAC;
 		x.valid = 1;
 		x.item_type = ITEM_3;
 		FIB_insert(&x);
+	}else {
+		printf("no need to insert ITEM 2 and ITEM 3 in onPacketArrival\n");
 	}
 }

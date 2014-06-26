@@ -139,6 +139,10 @@ void do_display_dport(Tokens * tokens){
 // execute "exit"
 void do_exit(){
 	halt_flag = 1;
+
+//#ifdef DEBUG
+	printf("from do exit: halt flag set!\n");
+//#endif
 }
 
 void do_command_not_found(Tokens * tokens){
@@ -243,6 +247,8 @@ void console(){
 	}
 
 	printf("Connected to NetMagic successfully!\n");
+	FIB_init();
+	printf("FIB initialized\n");
 	// our logic
 	char command[100];
 	Tokens tokens;
